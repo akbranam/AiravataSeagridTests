@@ -56,7 +56,8 @@ import utils.SeagridTest;
 public class RunTests extends SeagridTest{
 	PrintStream console;
 	 String local_path, logfile, projectName;
-	 public int exceptions, test_count;
+	 public int exceptions, test_count, iterations;
+	 boolean load_test;
 
 	@BeforeEach
 	public
@@ -64,7 +65,12 @@ public class RunTests extends SeagridTest{
 		exceptions = 0;
 		test_count = 0;
 		local_path = readConfigFile("local_path");
-		
+		load_test = readConfigFile("load_test").equals("true");
+		if (load_test) {
+			iterations = Integer.parseInt(readConfigFile("load_test_iterations"));
+		}else {
+			iterations = 1;
+		}
 		//set output to file instead of command line
 		setOutput("run_tests_output_", console);
 	}
@@ -85,9 +91,16 @@ public class RunTests extends SeagridTest{
 
 	@Test
 	public void test() throws Exception{
+		
 		createProject();
+			
 		System.out.println("Project "+projectName+" Created");
-		System.out.println("Running All Seagrid Portal Tests");
+		if (load_test) {
+			System.out.println("Running Seagrid Portal Load Tests");
+		}else {
+			System.out.println("Running All Seagrid Portal Tests");
+		}
+		while(iterations-->0) {
 		//runTest(new Abaqus(), "Abaqus");
 		runTest(new Abinit(), "Abinit");
 		runTest(new AceMD(), "AceMD");
@@ -109,6 +122,7 @@ public class RunTests extends SeagridTest{
 		runTest(new PSI4(), "PSI4");
 		runTest(new QChem(), "QChem");
 		runTest(new QEspresso(), "QEspresso");
+		}
 		System.out.println("All Seagrid Portal Tests Complete");
 	}
 	
